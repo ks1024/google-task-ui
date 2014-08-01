@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import curses
+import sys
 
 from gotask import GoTask
 
@@ -26,22 +27,16 @@ class Ui:
         step = 1
         offset = 4
         select = -1
-        while select != num_tasklists:
+        while select < num_tasklists:
             self.screen.clear()
             self.screen.addstr(2, 4, "Term - Google Task UI")
             self.screen.addstr(offset, 4, "Please select one tasklist for more details...", curses.A_BOLD)
-            for i in range(num_tasklists + 1):
-                if i < num_tasklists:
-                    if i == opt:
-                        self.screen.addstr(offset + step + i, 4, '-> ' + str(i+1) + '. ' + tasklists[i]['title'], curses.color_pair(1))
-                    else:
-                        self.screen.addstr(offset + step + i, 7, str(i+1) + '. ' + tasklists[i]['title'])
+            for i in range(num_tasklists):
+                if i == opt:
+                    self.screen.addstr(offset + step + i, 4, '-> ' + str(i+1) + '. ' + tasklists[i]['title'], curses.color_pair(1))
                 else:
-                    if i == opt:
-                        self.screen.addstr(offset + step + i, 4, "-> Exit ('q')", curses.color_pair(1))
-                    else:
-                        self.screen.addstr(offset + step + i, 7, "Exit ('q')")
-                    
+                    self.screen.addstr(offset + step + i, 7, str(i+1) + '. ' + tasklists[i]['title'])
+            self.screen.addstr(offset + step + num_tasklists, 4, '(r: rename list, d: delete list, n: new list..., q: quit)')
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_UP or q == ord('k'):     # KEY_UP or 'k' on vi/vim mode
@@ -50,10 +45,11 @@ class Ui:
                 opt = (opt + 1) % (num_tasklists + 1)
             elif q == ord('\n'):
                 select = opt
-            if q == ord('q') or select == num_tasklists:
+            if q == ord('q'):
                 break
 
         curses.endwin()
+        sys.exit(0)
         
 if __name__ == '__main__':
     ui = Ui()

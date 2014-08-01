@@ -54,8 +54,8 @@ class GoTask:
         """List an user's all tasklists
 
         """
-        tasklists = self.service.tasklists().list().execute()
-        return tasklists['items']
+        response = self.service.tasklists().list().execute()
+        return response['items']
 
 #if __name__ == '__main__':
 #    gotask = GoTask()
