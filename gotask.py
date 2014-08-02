@@ -58,7 +58,7 @@ class GoTask:
         return response['items']
 
     def rename_tasklist(self, tasklist, new_name):
-        """Rename tasklist
+        """Rename the specified tasklist
 
         """
         tasklist['title'] = new_name
@@ -68,7 +68,21 @@ class GoTask:
         else:
             return False
 
+    def del_tasklist(self, tasklist_id):
+        """Delete the specified tasklist
 
+        """
+        self.service.tasklists().delete(tasklist=tasklist_id).execute()
+    
+    def new_tasklist(self, tasklist_title):
+        """Create a new tasklist
+
+        """
+        new_tasklist = {
+            'title': tasklist_title
+        }
+        result = self.service.tasklists().insert(body=new_tasklist).execute()
+        return result['id']
 
 #if __name__ == '__main__':
 #    gotask = GoTask()
