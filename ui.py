@@ -86,10 +86,17 @@ class Ui:
                 self.screen.addstr(offset_y + 5, offset_x, '<b>: back to lists, <q>: quit', curses.color_pair(2))
             else:
                 for i in range(nb_tasks):
+                    info = '';
+                    if 'due' in tasks[i]:
+                        info = info + ' [due]'
+                    if 'notes' in tasks[i]:
+                        info = info + ' [notes]'
+                    if 'completed' in tasks[i]:
+                        info = info + ' [completed]'
                     if i == opt:
-                        self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'], curses.color_pair(1))
+                        self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'] + info, curses.color_pair(1))
                     else:
-                        self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'])
+                        self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
                 self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
