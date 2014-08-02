@@ -13,6 +13,7 @@ class Ui:
         self.screen = curses.initscr()
         curses.start_color()
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
+        curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
         self.screen.keypad(1)
     
     def build_tasklists(self, list_id=None, start=0, offset=(2, 4)):
@@ -39,7 +40,8 @@ class Ui:
                     self.screen.addstr(offset_y+i+4, offset_x, '-> ' + str(i+1) + '. ' + self.tasklists[i]['title'], curses.color_pair(1))
                 else:
                     self.screen.addstr(offset_y+i+4, offset_x+3, str(i+1) + '. ' + self.tasklists[i]['title'])
-            self.screen.addstr(offset_y+nb_tasklists+4, offset_x, '(<Enter>: watch list  <r>: refresh list, <u>: update list name, <d>: delete list, <n>: new list..., <q>: quit)')
+            self.screen.addstr(offset_y+nb_tasklists+4, offset_x, 
+                    '(<Enter>: watch list  <r>: refresh list, <u>: update list name, <d>: delete list, <n>: new list..., <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_UP or q == ord('k'):  # KEY_UP or 'k' on vi/vim mode
@@ -81,14 +83,14 @@ class Ui:
             self.screen.addstr(offset_y + 2, offset_x, 'Tasks of tasklist - ' + tasklist_title, curses.A_BOLD)
             if nb_tasks == 0:
                 self.screen.addstr(offset_y + 4, offset_x, 'Sorry. The list is empty')
-                self.screen.addstr(offset_y + 5, offset_x, '<b>: back to lists, <q>: quit')
+                self.screen.addstr(offset_y + 5, offset_x, '<b>: back to lists, <q>: quit', curses.color_pair(2))
             else:
                 for i in range(nb_tasks):
                     if i == opt:
                         self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'], curses.color_pair(1))
                     else:
                         self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'])
-                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <b>: back to lists, <q>: quit')
+                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_DOWN or q == ord('j'):
