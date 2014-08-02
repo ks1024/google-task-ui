@@ -46,21 +46,49 @@ class Ui:
                 opt = (opt - 1) % (nb_tasklists)
             elif q == curses.KEY_DOWN or q == ord('j'):  # KEY_DOWN or 'j' on vi/vim mode
                 opt = (opt + 1) % (nb_tasklists)
-            elif q == ord('\n'):
-                select = opt
+            elif q == ord('\n'):  # Watch a tasklist
+                self.build_tasks(opt)
             elif q == ord('n'):  # New a tasklist
                 self.new_tasklist(opt)
-            elif q == ord('u'):  # Update the selected list name
+            elif q == ord('u'):  # Update the selected tasklist name
                 self.rename_tasklist(opt)
             elif q == ord('r'):  # Refresh lists
                 self.build_tasklists()
-            elif q == ord('d'):  # Delete the selected list
+            elif q == ord('d'):  # Delete the selected tasklist
                 tasklist_id = self.tasklists[opt]['id']
                 self.gotask.del_tasklist(tasklist_id)
                 self.build_tasklists()
             elif q == ord('q'):
                 self.quit()
         curses.endwin()
+
+    def build_tasks(self, list_num_selected, offset=(2, 4)):
+        """Ui for displaying all tasks of the selected tasklist
+
+        """
+        offset_y, offset_x = offset
+        select = -1
+        opt = 0
+        curses.curs_set(0)
+        curses.noecho()
+        tasklist_id = self.tasklists[list_num_selected]['id']
+        tasklist_title = self.tasklists[list_num_selected]['title']
+        tasks = self.gotask.list_tasks(tasklist_id)
+        while select < 0:
+            self.screen.clear()
+            self.screen.addstr(offset_y, offset_x, 'Term - Google Task')
+            self.screen.addstr(offset_y+2, offset_x, 'Tasks of tasklist - ' + tasklist_title, curses.A_BOLD)
+            if tasks is None:
+                self.screen.addstr(offset_y+4, offset_x, 'Sorry. The list is empty')
+                self.screen.addstr(offset_y+5, offset_x, '(<Enter> watch task, <n>: new task, <b>: back to lists, <q>: quit)')
+            else:
+                pass
+            self.screen.refresh()
+            q = self.screen.getch()
+            if q == ord('b'):
+                self.build_tasklists(None, list_num_selected)
+            elif q == ord('q'):
+                self.quit()
 
     def rename_tasklist(self, select, offset=(2, 4)):
         """Ui for renaming a tasklist

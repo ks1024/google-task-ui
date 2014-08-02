@@ -83,6 +83,13 @@ class GoTask:
         }
         result = self.service.tasklists().insert(body=new_tasklist).execute()
         return result['id']
+    
+    def list_tasks(self, tasklist_id):
+        tasks = self.service.tasks().list(tasklist=tasklist_id).execute()
+        if 'items' in tasks:
+            return tasks['items']
+        else:
+            return None
 
 #if __name__ == '__main__':
 #    gotask = GoTask()
