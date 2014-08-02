@@ -57,6 +57,19 @@ class GoTask:
         response = self.service.tasklists().list().execute()
         return response['items']
 
+    def rename_tasklist(self, tasklist, new_name):
+        """Rename tasklist
+
+        """
+        tasklist['title'] = new_name
+        result = self.service.tasklists().update(tasklist=tasklist['id'], body=tasklist).execute()
+        if result['title'] == new_name:
+            return True
+        else:
+            return False
+
+
+
 #if __name__ == '__main__':
 #    gotask = GoTask()
 #    gotask.list_tasklists()
