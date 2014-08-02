@@ -89,7 +89,7 @@ class GoTask:
         if 'items' in tasks:
             return tasks['items']
         else:
-            return None
+            return []
 
 #if __name__ == '__main__':
 #    gotask = GoTask()

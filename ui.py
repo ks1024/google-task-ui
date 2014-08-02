@@ -43,9 +43,9 @@ class Ui:
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_UP or q == ord('k'):  # KEY_UP or 'k' on vi/vim mode
-                opt = (opt - 1) % (nb_tasklists)
+                opt = (opt - 1) % nb_tasklists
             elif q == curses.KEY_DOWN or q == ord('j'):  # KEY_DOWN or 'j' on vi/vim mode
-                opt = (opt + 1) % (nb_tasklists)
+                opt = (opt + 1) % nb_tasklists
             elif q == ord('\n'):  # Watch a tasklist
                 self.build_tasks(opt)
             elif q == ord('n'):  # New a tasklist
@@ -74,17 +74,27 @@ class Ui:
         tasklist_id = self.tasklists[list_num_selected]['id']
         tasklist_title = self.tasklists[list_num_selected]['title']
         tasks = self.gotask.list_tasks(tasklist_id)
+        nb_tasks = len(tasks)
         while select < 0:
             self.screen.clear()
             self.screen.addstr(offset_y, offset_x, 'Term - Google Task')
-            self.screen.addstr(offset_y+2, offset_x, 'Tasks of tasklist - ' + tasklist_title, curses.A_BOLD)
-            if tasks is None:
-                self.screen.addstr(offset_y+4, offset_x, 'Sorry. The list is empty')
-                self.screen.addstr(offset_y+5, offset_x, '(<Enter> watch task, <n>: new task, <b>: back to lists, <q>: quit)')
+            self.screen.addstr(offset_y + 2, offset_x, 'Tasks of tasklist - ' + tasklist_title, curses.A_BOLD)
+            if nb_tasks == 0:
+                self.screen.addstr(offset_y + 4, offset_x, 'Sorry. The list is empty')
+                self.screen.addstr(offset_y + 5, offset_x, '<b>: back to lists, <q>: quit')
             else:
-                pass
+                for i in range(nb_tasks):
+                    if i == opt:
+                        self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'], curses.color_pair(1))
+                    else:
+                        self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'])
+                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <b>: back to lists, <q>: quit')
             self.screen.refresh()
             q = self.screen.getch()
+            if q == curses.KEY_DOWN or q == ord('j'):
+                opt = (opt + 1) % nb_tasks
+            elif q == curses.KEY_UP or q == ord('k'):
+                otp = (opt - 1) % nb_tasks
             if q == ord('b'):
                 self.build_tasklists(None, list_num_selected)
             elif q == ord('q'):
