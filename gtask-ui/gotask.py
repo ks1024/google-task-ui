@@ -110,8 +110,12 @@ class GoTask:
             return result
         else:
             return task
+    
     def move_task(self, tasklist_id, task_id_curr, task_id_pre=''):
         self.service.tasks().move(tasklist=tasklist_id, task=task_id_curr, previous=task_id_pre).execute()
     
     def update_task(self, tasklist_id, task):
         self.service.tasks().update(tasklist=tasklist_id, task=task['id'], body=task).execute()
+
+    def clear_task(self, tasklist_id):
+        self.service.tasks().clear(tasklist=tasklist_id).execute()

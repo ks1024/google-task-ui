@@ -86,6 +86,7 @@ class Ui:
                 self.screen.addstr(offset_y + 4, offset_x, 'Sorry. The list is empty')
                 self.screen.addstr(offset_y + 5, offset_x, '(<n>: new task, <b>: back to lists, <q>: quit)', curses.color_pair(2))
             else:
+                delta = 0
                 for i in range(nb_tasks):
                     info = '';
                     if 'due' in tasks[i]:
@@ -93,12 +94,23 @@ class Ui:
                     if 'notes' in tasks[i]:
                         info = info + ' [notes]'
                     info = info + ' [' + tasks[i]['status'] + ']'
-                    if i == opt:
-                        self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'] + info, curses.color_pair(1))
+                    
+                    if 'parent' in tasks[i]:
+                        if tasks[i]['parent'] == tasks[i-1]['id'] and 'parent' not in tasks[i-1]:
+                            delta = 1
+                        if tasks[i]['parent'] != tasks[i-1]['id'] and 'parent' in tasks[i-1] and tasks[i]['parent'] != tasks[i-1]['parent']:
+                            delta = 1
+                        if tasks[i]['parent'] == tasks[i-1]['id'] and 'parent' in tasks[i-1]:
+                            delta = 2
                     else:
-                        self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
+                        delta = 0
+
+                    if i == opt:
+                        self.screen.addstr(offset_y + i + 4, offset_x + delta*2, '-> ' + str(i+1) + '. ' + tasks[i]['title'] + info, curses.color_pair(1))
+                    else:
+                        self.screen.addstr(offset_y + i + 4, offset_x + delta*2 + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
                 self.screen.addstr(offset_y + nb_tasks + 4, offset_x, 
-                        '(<Enter>: watch task, <n>: new task, <m>: mark as completed, <u>: unmark as completed, <w>: move up task, <s>: move down task, <e>: edit task, <d>: delete task, <b>: back to lists, <q>: quit)', curses.color_pair(2))
+                        '(<Enter>: watch task, <n>: new task, <m>: mark as completed, <u>: unmark as completed, <w>: move up task, <s>: move down task, <e>: edit task, <c>: clear task, <d>: delete task, <b>: back to lists, <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if nb_tasks > 0:
@@ -123,6 +135,9 @@ class Ui:
                     self.move_down_task(tasks, opt, list_num_selected)
                 elif q == ord('u'):
                     self.edit_task(tasks[opt], opt, list_num_selected)
+                elif q == ord('c'):
+                    self.gotask.clear_task(tasklist_id)
+                    self.build_tasks(list_num_selected)
             if q == ord('n'):
                 self.new_task(list_num_selected)
             elif q == ord('b'):
