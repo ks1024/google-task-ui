@@ -14,6 +14,7 @@ class Ui:
         curses.start_color()
         curses.init_pair(1, curses.COLOR_CYAN, curses.COLOR_BLACK)
         curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
+        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
         self.screen.keypad(1)
     
     def build_tasklists(self, list_id=None, start=0, offset=(2, 4)):
@@ -112,7 +113,7 @@ class Ui:
                 self.gotask.del_task(tasklist_id, tasks[opt]['id'])
                 self.build_tasks(list_num_selected)
             elif q == ord('m'):
-                self.gotask.complete_task(tasklist_id, tasks[opt]['id'], tasks[opt])
+                self.gotask.complete_task(tasklist_id, tasks[opt])
                 self.build_tasks(list_num_selected, opt)
             elif q == ord('b'):
                 self.build_tasklists(None, list_num_selected)
@@ -125,24 +126,39 @@ class Ui:
         """
         offset_y, offset_x = offset
         key = -1
+        temp = dict()
         while key < 0:
             self.screen.clear()
             self.screen.addstr(offset_y, offset_x, 'Term - Google Task')
             self.screen.addstr(offset_y + 2, offset_x, 'Task details', curses.A_BOLD)
             if task['title'] == '':
-                task['title'] = '<empty>'
+                temp['title'] = '<empty>'
+            else:
+                temp['title'] = task['title']
             if 'due' not in task:
-                task['due'] = '<empty>'
+                temp['due'] = '<empty>'
+            else:
+                temp['due'] = task['due']
             if 'notes' not in task:
-                task['notes'] = '<empty>'
-            self.screen.addstr(offset_y + 4, offset_x, 'Title: ' + task['title'])
-            self.screen.addstr(offset_y + 5, offset_x, 'Due to: ' + task['due'])
-            self.screen.addstr(offset_y + 6, offset_x, 'Notes: ' + task['notes'])
-            self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'])
-            self.screen.addstr(offset_y + 8, offset_x, '(<b>: back to list, <q>: quit)', curses.color_pair(2))
+                temp['notes'] = '<empty>'
+            else:
+                temp['notes'] = task['notes']
+            temp['status'] = task['status']
+            self.screen.addstr(offset_y + 4, offset_x, 'Title: ' + temp['title'])
+            self.screen.addstr(offset_y + 5, offset_x, 'Due to: ' + temp['due'])
+            self.screen.addstr(offset_y + 6, offset_x, 'Notes: ' + temp['notes'])
+            if temp['status'] == 'completed':
+                self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + temp['status'], curses.color_pair(3))
+            else:
+                self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + temp['status'])
+            self.screen.addstr(offset_y + 8, offset_x, '(<m>: mark as completed, <b>: back to list, <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
-            if q == ord('b'):
+            if q == ord('m'):
+                tasklist_id = self.tasklists[list_num_selected]['id']
+                self.gotask.complete_task(tasklist_id, task)
+                self.build_task(task, task_num_selected, list_num_selected)
+            elif q == ord('b'):
                 self.build_tasks(list_num_selected, task_num_selected)
             elif q == ord('q'):
                 self.quit()
