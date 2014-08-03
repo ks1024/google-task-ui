@@ -83,7 +83,7 @@ class Ui:
             self.screen.addstr(offset_y + 2, offset_x, 'Tasks of tasklist - ' + tasklist_title, curses.A_BOLD)
             if nb_tasks == 0:
                 self.screen.addstr(offset_y + 4, offset_x, 'Sorry. The list is empty')
-                self.screen.addstr(offset_y + 5, offset_x, '<b>: back to lists, <q>: quit', curses.color_pair(2))
+                self.screen.addstr(offset_y + 5, offset_x, '<n>: new task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             else:
                 for i in range(nb_tasks):
                     info = '';
@@ -122,11 +122,13 @@ class Ui:
             self.screen.clear()
             self.screen.addstr(offset_y, offset_x, 'Term - Google Task')
             self.screen.addstr(offset_y + 2, offset_x, 'Task details', curses.A_BOLD)
-            self.screen.addstr(offset_y + 4, offset_x, 'Task: ' + task['title'])
+            if task['title'] == '':
+                task['title'] = '<empty>'
             if 'due' not in task:
                 task['due'] = '<empty>'
             if 'notes' not in task:
                 task['notes'] = '<empty>'
+            self.screen.addstr(offset_y + 4, offset_x, 'Title: ' + task['title'])
             self.screen.addstr(offset_y + 5, offset_x, 'Due to: ' + task['due'])
             self.screen.addstr(offset_y + 6, offset_x, 'Notes: ' + task['notes'])
             self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'])
