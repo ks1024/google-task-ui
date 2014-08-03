@@ -41,7 +41,7 @@ class Ui:
                 else:
                     self.screen.addstr(offset_y+i+4, offset_x+3, str(i+1) + '. ' + self.tasklists[i]['title'])
             self.screen.addstr(offset_y+nb_tasklists+4, offset_x, 
-                    '(<Enter>: watch list  <r>: refresh list, <u>: update list name, <d>: delete list, <n>: new list..., <q>: quit)', curses.color_pair(2))
+                    '(<Enter>: watch list, <r>: refresh list, <u>: update list name, <d>: delete list, <n>: new list..., <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_UP or q == ord('k'):  # KEY_UP or 'k' on vi/vim mode
@@ -96,7 +96,7 @@ class Ui:
                         self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'] + info, curses.color_pair(1))
                     else:
                         self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
-                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <n>: new task, <b>: back to lists, <q>: quit', curses.color_pair(2))
+                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <n>: new task, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_DOWN or q == ord('j'):
@@ -107,6 +107,9 @@ class Ui:
                 self.build_task(tasks[opt], opt, list_num_selected)
             elif q == ord('n'):
                 self.new_task(list_num_selected)
+            elif q == ord('d'):
+                self.gotask.del_task(tasklist_id, tasks[opt]['id'])
+                self.build_tasks(list_num_selected)
             elif q == ord('b'):
                 self.build_tasklists(None, list_num_selected)
             elif q == ord('q'):

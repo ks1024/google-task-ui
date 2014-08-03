@@ -94,6 +94,9 @@ class GoTask:
     def new_task(self, tasklist_id, task):
         result = self.service.tasks().insert(tasklist=tasklist_id, body=task).execute()
 
+    def del_task(self, tasklist_id, task_id):
+        self.service.tasks().delete(tasklist=tasklist_id, task=task_id).execute()
+
 #if __name__ == '__main__':
 #    gotask = GoTask()
 #    gotask.list_tasklists()
