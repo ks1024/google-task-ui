@@ -91,9 +91,8 @@ class GoTask:
         else:
             return []
 
-    def get_task(self, tasklist_id, task_id):
-        task = self.service.tasks().get(tasklist=tasklist_id, task=task_id).execute()
-        return task
+    def new_task(self, tasklist_id, task):
+        result = self.service.tasks().insert(tasklist=tasklist_id, body=task).execute()
 
 #if __name__ == '__main__':
 #    gotask = GoTask()
