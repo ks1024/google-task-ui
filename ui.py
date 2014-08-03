@@ -96,7 +96,8 @@ class Ui:
                         self.screen.addstr(offset_y + i + 4, offset_x, '-> ' + str(i+1) + '. ' + tasks[i]['title'] + info, curses.color_pair(1))
                     else:
                         self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
-                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, '<Enter>: watch task, <n>: new task, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
+                self.screen.addstr(offset_y + nb_tasks + 4, offset_x, 
+                        '<Enter>: watch task, <n>: new task, <m>: mark as completed, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == curses.KEY_DOWN or q == ord('j'):
@@ -110,6 +111,9 @@ class Ui:
             elif q == ord('d'):
                 self.gotask.del_task(tasklist_id, tasks[opt]['id'])
                 self.build_tasks(list_num_selected)
+            elif q == ord('m'):
+                self.gotask.complete_task(tasklist_id, tasks[opt]['id'], tasks[opt])
+                self.build_tasks(list_num_selected, opt)
             elif q == ord('b'):
                 self.build_tasklists(None, list_num_selected)
             elif q == ord('q'):

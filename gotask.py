@@ -97,6 +97,10 @@ class GoTask:
     def del_task(self, tasklist_id, task_id):
         self.service.tasks().delete(tasklist=tasklist_id, task=task_id).execute()
 
+    def complete_task(self, tasklist_id, task_id, task):
+        task['status'] = 'completed'
+        self.service.tasks().update(tasklist=tasklist_id, task=task_id, body=task).execute()
+
 #if __name__ == '__main__':
 #    gotask = GoTask()
 #    gotask.list_tasklists()
