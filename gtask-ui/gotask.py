@@ -99,11 +99,19 @@ class GoTask:
 
     def complete_task(self, tasklist_id, task):
         task['status'] = 'completed'
-        self.service.tasks().update(tasklist=tasklist_id, task=task['id'], body=task).execute()
-    
+        result = self.service.tasks().update(tasklist=tasklist_id, task=task['id'], body=task).execute()
+        return result
+
+    def uncomplete_task(self, tasklist_id, task):
+        if task['status'] == 'completed':
+            task['status'] = 'needsAction'
+            task.pop('completed', None)
+            result = self.service.tasks().update(tasklist=tasklist_id, task=task['id'], body=task).execute()
+            return result
+        else:
+            return task
     def move_task(self, tasklist_id, task_id_curr, task_id_pre=''):
         self.service.tasks().move(tasklist=tasklist_id, task=task_id_curr, previous=task_id_pre).execute()
-
-#if __name__ == '__main__':
-#    gotask = GoTask()
-#    gotask.list_tasklists()
+    
+    def update_task(self, tasklist_id, task):
+        self.service.tasks().update(tasklist=tasklist_id, task=task['id'], body=task).execute()

@@ -98,7 +98,7 @@ class Ui:
                     else:
                         self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
                 self.screen.addstr(offset_y + nb_tasks + 4, offset_x, 
-                        '<Enter>: watch task, <n>: new task, <m>: mark as completed, <w>: move up task, <s>: move down task, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
+                        '<Enter>: watch task, <n>: new task, <m>: mark as completed, <u>: unmark as completed, <w>: move up task, <s>: move down task, <e>: edit task, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if nb_tasks > 0:
@@ -114,10 +114,15 @@ class Ui:
                 elif q == ord('m'):
                     self.gotask.complete_task(tasklist_id, tasks[opt])
                     self.build_tasks(list_num_selected, opt)
+                elif q == ord('u'):
+                    self.gotask.uncomplete_task(tasklist_id, tasks[opt])
+                    self.build_tasks(list_num_selected, opt)
                 elif q == ord('w'):
                     self.move_up_task(tasks, opt, list_num_selected)
                 elif q == ord('s'):
                     self.move_down_task(tasks, opt, list_num_selected)
+                elif q == ord('u'):
+                    self.edit_task(tasks[opt], opt, list_num_selected)
             if q == ord('n'):
                 self.new_task(list_num_selected)
             elif q == ord('b'):
@@ -165,20 +170,23 @@ class Ui:
                 temp['notes'] = '<empty>'
             else:
                 temp['notes'] = task['notes']
-            temp['status'] = task['status']
             self.screen.addstr(offset_y + 4, offset_x, 'Title: ' + temp['title'])
             self.screen.addstr(offset_y + 5, offset_x, 'Due to: ' + temp['due'])
             self.screen.addstr(offset_y + 6, offset_x, 'Notes: ' + temp['notes'])
-            if temp['status'] == 'completed':
-                self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + temp['status'], curses.color_pair(3))
+            if task['status'] == 'completed':
+                self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'] + ' (' + task['completed'] + ')', curses.color_pair(3))
             else:
-                self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + temp['status'])
-            self.screen.addstr(offset_y + 8, offset_x, '(<m>: mark as completed, <b>: back to list, <q>: quit)', curses.color_pair(2))
+                self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'])
+            self.screen.addstr(offset_y + 8, offset_x, '(<m>: mark as completed, <u>: unmark as completed, <b>: back to list, <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == ord('m'):
                 tasklist_id = self.tasklists[list_num_selected]['id']
-                self.gotask.complete_task(tasklist_id, task)
+                task = self.gotask.complete_task(tasklist_id, task)
+                self.build_task(task, task_num_selected, list_num_selected)
+            elif q == ord('u'):
+                tasklist_id = self.tasklists[list_num_selected]['id']
+                task = self.gotask.uncomplete_task(tasklist_id, task)
                 self.build_task(task, task_num_selected, list_num_selected)
             elif q == ord('b'):
                 self.build_tasks(list_num_selected, task_num_selected)
@@ -257,6 +265,60 @@ class Ui:
             task['notes'] = notes
         self.gotask.new_task(tasklist_id, task)
         self.build_tasks(list_num_selected) 
+
+    def edit_task(self, task, task_num_selected, list_num_selected, offset=(2, 4)):
+        """Ui for updating task
+
+        """
+        offset_y, offset_x = offset
+        curses.curs_set(1)
+        curses.echo()
+        temp = dict()
+        opt = 0
+        title = ''
+        due_to = ''
+        notes = ''
+        while opt < 3:
+            self.screen.clear()
+            self.screen.addstr(offset_y, offset_x, 'Term - Google Task')
+            self.screen.addstr(offset_y + 2, offset_x, 'Modify task', curses.A_BOLD)
+            if task['title'] == '':
+                temp['title'] = '<empty>'
+            else:
+                temp['title'] = task['title']
+            if 'due' not in task:
+                temp['due'] = '<empty>'
+            else:
+                temp['due'] = task['due']
+            if 'notes' not in task:
+                temp['notes'] = '<empty>'
+            else:
+                temp['notes'] = task['notes']
+            self.screen.addstr(offset_y + 4, offset_x, 'Title: ' + temp['title'])
+            self.screen.addstr(offset_y + 5, offset_x, 'Due to: ' + temp['due'])
+            self.screen.addstr(offset_y + 6, offset_x, 'Notes: ' + temp['notes'])
+
+            self.screen.addstr(offset_y + 8, offset_x, 'Title: ' + title)
+            self.screen.addstr(offset_y + 9, offset_x, 'Due to (YYYY-MM-DD): ' + due_to)
+            self.screen.addstr(offset_y + 10, offset_x, 'Notes: ' + notes)
+            self.screen.refresh()
+
+            if opt == 0:
+                title = self.screen.getstr(offset_y + 8, offset_x + 7)
+            elif opt == 1:
+                due_to = self.screen.getstr(offset_y + 9, offset_x + 21)
+            elif opt == 2:
+                notes = self.screen.getstr(offset_y + 10, offset_x + 7)
+            opt += 1
+        
+        tasklist_id = self.tasklists[list_num_selected]['id']
+        task['title'] = title
+        if due_to != '':
+            task['due'] = due_to + 'T12:00:00.000Z'
+        if notes != '':
+            task['notes'] = notes
+        self.gotask.update_task(tasklist_id, task)
+        self.build_task(task, task_num_selected, list_num_selected)
 
     def quit(self):
         curses.endwin()
