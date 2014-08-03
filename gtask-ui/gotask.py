@@ -100,6 +100,9 @@ class GoTask:
     def complete_task(self, tasklist_id, task):
         task['status'] = 'completed'
         self.service.tasks().update(tasklist=tasklist_id, task=task['id'], body=task).execute()
+    
+    def move_task(self, tasklist_id, task_id_curr, task_id_pre=''):
+        self.service.tasks().move(tasklist=tasklist_id, task=task_id_curr, previous=task_id_pre).execute()
 
 #if __name__ == '__main__':
 #    gotask = GoTask()

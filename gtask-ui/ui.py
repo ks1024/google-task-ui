@@ -98,27 +98,49 @@ class Ui:
                     else:
                         self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
                 self.screen.addstr(offset_y + nb_tasks + 4, offset_x, 
-                        '<Enter>: watch task, <n>: new task, <m>: mark as completed, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
+                        '<Enter>: watch task, <n>: new task, <m>: mark as completed, <w>: move up task, <s>: move down task, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
-            if q == curses.KEY_DOWN or q == ord('j'):
-                opt = (opt + 1) % nb_tasks
-            elif q == curses.KEY_UP or q == ord('k'):
-                opt = (opt - 1) % nb_tasks
-            elif q == ord('\n'):
-                self.build_task(tasks[opt], opt, list_num_selected)
-            elif q == ord('n'):
+            if nb_tasks > 0:
+                if q == curses.KEY_DOWN or q == ord('j'):
+                    opt = (opt + 1) % nb_tasks
+                elif q == curses.KEY_UP or q == ord('k'):
+                    opt = (opt - 1) % nb_tasks
+                elif q == ord('\n'):
+                    self.build_task(tasks[opt], opt, list_num_selected)
+                elif q == ord('d'):
+                    self.gotask.del_task(tasklist_id, tasks[opt]['id'])
+                    self.build_tasks(list_num_selected)
+                elif q == ord('m'):
+                    self.gotask.complete_task(tasklist_id, tasks[opt])
+                    self.build_tasks(list_num_selected, opt)
+                elif q == ord('w'):
+                    self.move_up_task(tasks, opt, list_num_selected)
+                elif q == ord('s'):
+                    self.move_down_task(tasks, opt, list_num_selected)
+            if q == ord('n'):
                 self.new_task(list_num_selected)
-            elif q == ord('d'):
-                self.gotask.del_task(tasklist_id, tasks[opt]['id'])
-                self.build_tasks(list_num_selected)
-            elif q == ord('m'):
-                self.gotask.complete_task(tasklist_id, tasks[opt])
-                self.build_tasks(list_num_selected, opt)
             elif q == ord('b'):
                 self.build_tasklists(None, list_num_selected)
             elif q == ord('q'):
                 self.quit()
+
+    def move_up_task(self, tasks, task_num_selected, list_num_selected):
+        if task_num_selected == 0:
+            pass
+        elif task_num_selected == 1:
+            self.gotask.move_task(self.tasklists[list_num_selected]['id'], tasks[task_num_selected]['id'])
+            self.build_tasks(list_num_selected)
+        else:
+            self.gotask.move_task(self.tasklists[list_num_selected]['id'], tasks[task_num_selected]['id'], tasks[task_num_selected-2]['id'])
+            self.build_tasks(list_num_selected, task_num_selected-1)
+
+    def move_down_task(self, tasks, task_num_selected, list_num_selected):
+        if task_num_selected == len(tasks) - 1:
+            pass
+        else:
+            self.gotask.move_task(self.tasklists[list_num_selected]['id'], tasks[task_num_selected]['id'], tasks[task_num_selected+1]['id'])
+            self.build_tasks(list_num_selected, task_num_selected+1)
 
     def build_task(self, task, task_num_selected, list_num_selected, offset=(2, 4)):
         """Ui for displaying the task details
