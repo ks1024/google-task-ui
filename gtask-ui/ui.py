@@ -84,7 +84,7 @@ class Ui:
             self.screen.addstr(offset_y + 2, offset_x, 'Tasks of tasklist - ' + tasklist_title, curses.A_BOLD)
             if nb_tasks == 0:
                 self.screen.addstr(offset_y + 4, offset_x, 'Sorry. The list is empty')
-                self.screen.addstr(offset_y + 5, offset_x, '<n>: new task, <b>: back to lists, <q>: quit', curses.color_pair(2))
+                self.screen.addstr(offset_y + 5, offset_x, '(<n>: new task, <b>: back to lists, <q>: quit)', curses.color_pair(2))
             else:
                 for i in range(nb_tasks):
                     info = '';
@@ -98,7 +98,7 @@ class Ui:
                     else:
                         self.screen.addstr(offset_y + i + 4, offset_x + 3, str(i+1) + '. ' + tasks[i]['title'] + info)
                 self.screen.addstr(offset_y + nb_tasks + 4, offset_x, 
-                        '<Enter>: watch task, <n>: new task, <m>: mark as completed, <u>: unmark as completed, <w>: move up task, <s>: move down task, <e>: edit task, <d>: delete task, <b>: back to lists, <q>: quit', curses.color_pair(2))
+                        '(<Enter>: watch task, <n>: new task, <m>: mark as completed, <u>: unmark as completed, <w>: move up task, <s>: move down task, <e>: edit task, <d>: delete task, <b>: back to lists, <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if nb_tasks > 0:
@@ -177,7 +177,7 @@ class Ui:
                 self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'] + ' (' + task['completed'] + ')', curses.color_pair(3))
             else:
                 self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'])
-            self.screen.addstr(offset_y + 8, offset_x, '(<m>: mark as completed, <u>: unmark as completed, <b>: back to list, <q>: quit)', curses.color_pair(2))
+            self.screen.addstr(offset_y + 8, offset_x, '(<m>: mark as completed, <u>: unmark as completed, <e>: edit task, <b>: back to list, <q>: quit)', curses.color_pair(2))
             self.screen.refresh()
             q = self.screen.getch()
             if q == ord('m'):
@@ -188,6 +188,8 @@ class Ui:
                 tasklist_id = self.tasklists[list_num_selected]['id']
                 task = self.gotask.uncomplete_task(tasklist_id, task)
                 self.build_task(task, task_num_selected, list_num_selected)
+            elif q == ord('e'):
+                self.edit_task(task, task_num_selected, list_num_selected)
             elif q == ord('b'):
                 self.build_tasks(list_num_selected, task_num_selected)
             elif q == ord('q'):
@@ -315,8 +317,12 @@ class Ui:
         task['title'] = title
         if due_to != '':
             task['due'] = due_to + 'T12:00:00.000Z'
+        else:
+            task.pop('due', None)
         if notes != '':
             task['notes'] = notes
+        else:
+            task.pop('notes', None)
         self.gotask.update_task(tasklist_id, task)
         self.build_task(task, task_num_selected, list_num_selected)
 
