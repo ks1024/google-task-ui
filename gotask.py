@@ -91,6 +91,10 @@ class GoTask:
         else:
             return []
 
+    def get_task(self, tasklist_id, task_id):
+        task = self.service.tasks().get(tasklist=tasklist_id, task=task_id).execute()
+        return task
+
 #if __name__ == '__main__':
 #    gotask = GoTask()
 #    gotask.list_tasklists()

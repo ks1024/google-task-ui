@@ -64,13 +64,13 @@ class Ui:
                 self.quit()
         curses.endwin()
 
-    def build_tasks(self, list_num_selected, offset=(2, 4)):
+    def build_tasks(self, list_num_selected, start=0, offset=(2, 4)):
         """Ui for displaying all tasks of the selected tasklist
 
         """
         offset_y, offset_x = offset
         select = -1
-        opt = 0
+        opt = start
         curses.curs_set(0)
         curses.noecho()
         tasklist_id = self.tasklists[list_num_selected]['id']
@@ -103,9 +103,37 @@ class Ui:
             if q == curses.KEY_DOWN or q == ord('j'):
                 opt = (opt + 1) % nb_tasks
             elif q == curses.KEY_UP or q == ord('k'):
-                otp = (opt - 1) % nb_tasks
-            if q == ord('b'):
+                opt = (opt - 1) % nb_tasks
+            elif q == ord('\n'):
+                self.build_task(tasks[opt], opt, list_num_selected)
+            elif q == ord('b'):
                 self.build_tasklists(None, list_num_selected)
+            elif q == ord('q'):
+                self.quit()
+
+    def build_task(self, task, task_num_selected, list_num_selected, offset=(2, 4)):
+        """Ui for displaying the task details
+
+        """
+        offset_y, offset_x = offset
+        key = -1
+        while key < 0:
+            self.screen.clear()
+            self.screen.addstr(offset_y, offset_x, 'Term - Google Task')
+            self.screen.addstr(offset_y + 2, offset_x, 'Task details', curses.A_BOLD)
+            self.screen.addstr(offset_y + 4, offset_x, 'Task: ' + task['title'])
+            if 'due' not in task:
+                task['due'] = ''
+            if 'notes' not in task:
+                task['notes'] = ''
+            self.screen.addstr(offset_y + 5, offset_x, 'Due to: ' + task['due'])
+            self.screen.addstr(offset_y + 6, offset_x, 'Notes: ' + task['notes'])
+            self.screen.addstr(offset_y + 7, offset_x, 'Status: ' + task['status'])
+            self.screen.addstr(offset_y + 8, offset_x, '(<b>: back to list, <q>: quit)', curses.color_pair(2))
+            self.screen.refresh()
+            q = self.screen.getch()
+            if q == ord('b'):
+                self.build_tasks(list_num_selected, task_num_selected)
             elif q == ord('q'):
                 self.quit()
 
